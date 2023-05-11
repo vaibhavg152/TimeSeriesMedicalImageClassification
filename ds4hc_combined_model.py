@@ -31,9 +31,13 @@ from sklearn.metrics import confusion_matrix
 
 torch.manual_seed(10)
 
-annotations_file = glob('/content/*image*.csv')[0]
+annotations_file = glob('*image*.csv')[0]
 BATCH_SIZE = 8
-feature_extractor = "densenet121-res224-chex"
+
+FEATURE_EXTRACTORS = ["densenet121-res224-chex", "densenet121-res224-rsna", "densenet121-res224-mimic_ch",]
+feature_extractor = sys.argv[1]
+print(feature_extractor)
+assert feature_extractor in FEATURE_EXTRACTORS, f"Only {','.join(FEATURE_EXTRACTORS)} are valid feature extractors."
 
 
 class CXRT_Dataset_2(Dataset):

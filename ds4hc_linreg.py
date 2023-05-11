@@ -19,7 +19,11 @@ from sklearn.model_selection import RepeatedStratifiedKFold
 from sklearn.model_selection import train_test_split
 
 
-feature_extractor = "densenet121-res224-chex"
+FEATURE_EXTRACTORS = ["densenet121-res224-chex", "densenet121-res224-rsna", "densenet121-res224-mimic_ch",]
+feature_extractor = sys.argv[1]
+print(feature_extractor)
+assert feature_extractor in FEATURE_EXTRACTORS, f"Only {','.join(FEATURE_EXTRACTORS)} are valid feature extractors."
+
 with open(f'features_{feature_extractor}.json') as f:
   data = json.load(f)
 images = list(data.keys())
@@ -28,7 +32,7 @@ features = torch.Tensor(list(data.values()))
 
 """Train the model"""
 
-annotations_file = glob('/content/*image*.csv')[0]
+annotations_file = glob('*image*.csv')[0]
 
 DISEASE_NAMES = ['edema', 'consolidation', 'pleural_effusion', 'pneumothorax', 'pneumonia']
 for disease_name in DISEASE_NAMES:

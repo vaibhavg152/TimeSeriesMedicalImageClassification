@@ -16,12 +16,16 @@ from PIL import Image
 from tqdm.notebook import tqdm
 import json
 import csv
+import sys
 
 import pandas as pd
 
-feature_extractor = "densenet121-res224-chex"
+FEATURE_EXTRACTORS = ["densenet121-res224-chex", "densenet121-res224-rsna", "densenet121-res224-mimic_ch",]
+feature_extractor = sys.argv[1]
+print(feature_extractor)
+assert feature_extractor in FEATURE_EXTRACTORS, f"Only {','.join(FEATURE_EXTRACTORS)} are valid feature extractors."
 
-images = sorted(glob('/content/ms_cxr_t_images/*'))[:]
+images = sorted(glob('ms_cxr_t_images/*'))[:]
 
 processor = ViTImageProcessor.from_pretrained('nickmuchi/vit-finetuned-chest-xray-pneumonia')
 model = ViTModel.from_pretrained('nickmuchi/vit-finetuned-chest-xray-pneumonia')
@@ -29,7 +33,6 @@ model = ViTModel.from_pretrained('nickmuchi/vit-finetuned-chest-xray-pneumonia')
 features_vit = []
 for image_path in tqdm(images):
   image = Image.open(image_path)
-#   # Convert to RGB
   rgbimg = Image.new("RGB", image.size)
   rgbimg.paste(image)
   image = rgbimg
@@ -67,7 +70,7 @@ X = []
 
 transform = torchvision.transforms.Compose([xrv.datasets.XRayCenterCrop()])
 
-images = sorted(glob('/content/ms_cxr_t_images/*'))
+images = sorted(glob('ms_cxr_t_images/*'))
 print(len(images))
 
 for img_path in tqdm(images):
@@ -109,7 +112,7 @@ features = torch.Tensor(list(data.values()))
 
 features.shape
 
-df = pd.read_csv(glob('/content/*image*.csv')[0])
+df = pd.read_csv(glob('*image*.csv')[0])
 df['label'] = 'blah'
 df.label[~df.edema_progression.isna()] = df.edema_progression[~df.edema_progression.isna()]
 print(df.label.value_counts())
